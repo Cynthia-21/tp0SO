@@ -1,0 +1,36 @@
+@startuml
+left to right direction
+actor Contribuyente
+actor Visualizador
+actor Administrador
+
+package "Sistema MetaMapa" {
+
+usecase "Subir informacion a Hechos" as SubirHechos
+usecase "Solicitar eliminacion" as SolicitarEliminacion
+usecase "Visualizar Hechos" as VisualizarHechos
+usecase "Filtrar los Hechos de una Colección" as FiltrarColeccion
+usecase "Configurar Criterios de pertenencia a colecciones" as ConfigurarCriterios
+usecase "Importar hechos " as ImportarCSV
+usecase "Aceptar o rechazar  solicitud de eliminacion" as GestionarEliminacion
+usecase "Gestionar Coleccion" as GestionarColeccion
+usecase "Revisar y etiquetar hechos" as RevisarEtiquetar
+
+Contribuyente -- SubirHechos
+Contribuyente -- SolicitarEliminacion
+Contribuyente -- VisualizarHechos
+
+Visualizador -- VisualizarHechos
+
+
+Administrador -- ConfigurarCriterios
+Administrador -- ImportarCSV
+Administrador -- GestionarEliminacion
+Administrador -- GestionarColeccion
+Administrador -- RevisarEtiquetar
+
+VisualizarHechos <--. FiltrarColeccion : <extend>
+
+}
+
+@enduml

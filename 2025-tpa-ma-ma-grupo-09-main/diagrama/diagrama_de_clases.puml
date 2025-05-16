@@ -1,0 +1,266 @@
+@startuml diagrama_de_clases
+
+
+' CLASES, INTERFACES Y ENUMS '
+
+
+class Coleccion {
+    - titulo:String
+    - descripcion:String
+    - criterios:CriterioDePertenencia
+    - fuente:List<Fuente>
+    - hechos:List<Hecho>
+    --
+    + filtrarPor(filtro:Filtro):List<Hecho>
+    + agregarHechosDeFuente():void
+    + agregarHecho(hecho:Hecho):void
+    + agregarFuente(fuente:Fuente):void
+    + revalidarPorCriterio():void
+}
+
+
+interface ICriterioDePertenencia {
+    --
+    + cumpleCriterio(hecho:Hecho):Boolean
+}
+
+class CriterioCategoria {
+    - categoria:Categoria
+    --
+    + cumpleCriterio(hecho:Hecho):Boolean
+}
+
+class CriterioFecha {
+    - fechaInicial:LocalDate
+    - fechaFinal:LocalDate
+    --
+    + cumpleCriterio(hecho:Hecho):Boolean
+}
+
+class CriterioUbicacion {
+    - ubicacion:Ubicacion
+    --
+    + cumpleCriterio(hecho:Hecho):Boolean
+}
+
+class CriterioDePertenencia {
+    - criterios:List<ICriterioDePertenencia>
+    --
+    + agregarCriterio(criterio:ICriterioDePertenencia):void
+    + cumpleCriterios(hecho:Hecho):Boolean
+}
+
+
+class Hecho {
+    - titulo:String
+    - descripcion:String
+    - categoria:List<Categoria>
+    - contenidoMultimedia:ContenidoMultimedia
+    - ubicacion:Ubicacion
+    - fechaAcontecimiento:LocalDate
+    - fechaDeCarga:LocalDate
+    - origen:Origen
+    - estaEliminado:Boolean
+    - etiquetas:List<Etiqueta>
+    - contribuyente:Contribuyente
+    - archivoDeOrigen:Archivo
+    --
+    + contieneTexto(texto:String):Boolean
+    + agregarCategoria(categoria:String):void
+    + agregarEtiqueta(etiqueta:String):void
+}
+
+class Ubicacion {
+    - coordenadas:Coordenadas
+    - provincia:String
+    - localidad:String
+    - calle:String
+    - altura:Integer
+    --
+    + esIgualA(otraUbicacion:Ubicacion):Boolean
+}
+
+class Coordenadas {
+    - latitud:Double
+    - longitud:Double
+    --
+    + estaCercaDe((otrasCoordenadas:Coordenadas, kmALaRedonda:Double):Boolean
+    - formulaHavershine(otrasCoordenadas:Coordenadas):Double
+}
+
+class Categoria {
+    - nombre:String
+}
+
+class Etiqueta {
+    - titulo:String
+}
+
+enum Origen {
+    MANUAL
+    DATASET
+    CONTRIBUYENTE
+}
+
+class ContenidoMultimedia {
+    - path:String
+    - descripcion:String
+    - tipoDeContenido:TipoDeContenido
+}
+
+enum TipoDeContenido {
+    FOTO
+    VIDEO
+    AUDIO
+    TEXTO
+}
+
+
+class Filtro {
+    - titlo:String
+    - descripcion:String
+    - categorias:List<Categoria>
+    - ubicacion:Ubicacion
+    - fechaAcontecimiento:LocalDate
+    - fechaDeCarga:LocalDate
+    - origen:Origen
+    - etiquetas:List<Etiqueta>
+    --
+    + cumpleFiltro(hecho:Hecho):Boolean
+    + agregarCategoria(categoria:Categoria):void
+    + agregarEtiqueta(etiqueta:Etiqueta):void
+}
+
+class Filtrador {
+    --
+    + filtrar(coleccion:Coleccion, filtro:Filtro):List<Hecho>
+}
+
+
+
+interface Fuente {
+    + importarHechos():List<Hecho>
+}
+
+class FuenteEstatica {
+    - pathArchivoCsv:String
+    - estrategiaImportacion:EstrategiaImportacionEstatica
+    - rutaFuente:String
+    --
+    + importarHechos(rutaFuente:String):List<Hecho>
+}
+
+
+interface EstrategiaImportacionEstatica{
+    + leerArchivo(rutaFuente:String):List<Hecho>
+}
+
+class EstrategiaCSV{
+    - pathArchivoCsv:Archivo
+}
+
+class Archivo{
+    - nombre:String
+    - tamanioEnBytes:Integer
+
+}
+
+class Contribuyente {
+    - nombre:String
+    - apellido:String
+    - fechaDeNacimiento:LocalDate
+    --
+    + edad:Integer
+}
+
+class Administrador {
+    - nombre:String
+    - apellido:String
+}
+
+
+
+
+class SolicitudDeEliminacion {
+    - solicitante:Contribuyente
+    - hechoAEliminar:Hecho
+    - motivoSolicitud:MotivoSolicitud
+    - fechaAlta:LocalDateTime
+    - estadosDeSolicitud:List<EstadoSolicitud>
+    --
+    + aceptarSolicitud(fechaDeRevision:LocalDateTime, administrador:Administrador):void
+    + rechazarSolicitud(fechaDeRevision:LocalDateTime, administrador:Administrador):void
+    + getEstadoSolicitudActual():PosibleEstado
+    + getFechaUltimaRevision():LocalDateTime
+    + getUltimoEstadoSolicitud():EstadoSolicitud
+}
+
+class EstadoSolicitud {
+    - posibleEstado:PosibleEstado
+    - administrador:Administrador
+    - fechaDeRevision:LocalDateTime
+}
+
+enum PosibleEstado {
+    PENDIENTE
+    CONFIRMADA
+    RECHAZADA
+}
+
+class MotivoSolicitud {
+    - descripcion:String
+    --
+    - checkearLargoMotivo(motivo):void
+}
+
+
+
+' RELACIONES '
+
+Coleccion --> "*" Fuente
+Coleccion --> "*" Hecho
+Coleccion --> CriterioDePertenencia
+
+Filtrador ..> Filtro
+Filtrador ..> Coleccion
+
+Filtro ..> Hecho
+
+Fuente ..> Hecho
+
+Hecho --> Origen
+Hecho --> Ubicacion
+Ubicacion --> Coordenadas
+Hecho --> Contribuyente
+Hecho --> ContenidoMultimedia
+Hecho --> Archivo
+Hecho --> Categoria
+Hecho --> Etiqueta
+ContenidoMultimedia --> TipoDeContenido
+
+
+
+CriterioDePertenencia ..> Hecho
+CriterioDePertenencia --> "*" ICriterioDePertenencia
+CriterioCategoria ..|> ICriterioDePertenencia
+CriterioFecha ..|> ICriterioDePertenencia
+CriterioUbicacion ..|> ICriterioDePertenencia
+
+
+
+FuenteEstatica ..|> Fuente
+FuenteEstatica --> EstrategiaImportacionEstatica
+
+EstrategiaCSV ..|> EstrategiaImportacionEstatica
+EstrategiaCSV ..> Archivo
+
+
+
+SolicitudDeEliminacion --> "*" EstadoSolicitud
+EstadoSolicitud --> PosibleEstado
+EstadoSolicitud --> Administrador
+SolicitudDeEliminacion --> Contribuyente
+SolicitudDeEliminacion --> Hecho
+SolicitudDeEliminacion --> MotivoSolicitud
+
+@enduml

@@ -1,0 +1,125 @@
+@startuml
+
+class Hecho {
+    - id:String
+    - titulo:String
+    - descripcion:String
+    - categoria:List<Categoria>
+    - contenidoMultimedia:List<ContenidoMultimedia>
+    - ubicacion:Ubicacion
+    - fechaAcontecimiento:LocalDate
+    - fechaDeCarga:LocalDate
+    - origen:Origen
+    - estaEliminado:Boolean
+    - etiquetas:List<Etiqueta>
+    - contribuyente:Contribuyente
+    - archivoDeOrigen:Archivo
+    ' ¿realmente sirve guardar el contribuyente y el archivo acá? '
+    ' ¿tenemos forma de saber quien fue si es de fuente proxy? '
+    --
+    + contieneTexto(texto:String):Boolean
+    + agregarCategoria(categoria:String):void
+    + agregarEtiqueta(etiqueta:String):void
+}
+
+class Ubicacion {
+    - coordenadas:Coordenadas
+    - provincia:String
+    - localidad:String
+    - calle:String
+    - altura:Integer
+    --
+    + esIgualA(otraUbicacion:Ubicacion):Boolean
+}
+
+class Coordenadas {
+    - latitud:Double
+    - longitud:Double
+    --
+    + estaCercaDe((otrasCoordenadas:Coordenadas, kmALaRedonda:Double):Boolean
+    - formulaHavershine(otrasCoordenadas:Coordenadas):Double
+}
+
+class Categoria {
+    - nombre:String
+}
+
+class Etiqueta {
+    - titulo:String
+}
+
+enum Origen {
+    MANUAL
+    DATASET
+    CONTRIBUYENTE
+}
+
+class ContenidoMultimedia {
+    - path:String
+    - descripcion:String
+    - tipoDeContenido:TipoDeContenido
+}
+
+enum TipoDeContenido {
+    FOTO
+    VIDEO
+    AUDIO
+    TEXTO
+}
+
+class Archivo{
+    - nombre:String
+    - tamanioEnBytes:Integer
+}
+
+class Contribuyente {
+    - nombre:String
+    - apellido:String
+    - fechaDeNacimiento:LocalDate
+    --
+    + edad:Integer
+}
+
+interface Fuente {
+    + importarHechos():List<Hecho>
+}
+
+class FuenteProxy {
+   - idFuente : Long
+   - servicioDeImportacion:ServicioDeImportacion
+    --
+    + importarHechos():List<Hecho>
+}
+
+interface ServicioDeImportacion{
+    + adquirirHechos():List<Hecho>
+}
+
+class EstrategiaFuenteMetamapa implements ServicioDeImportacion{
+
+}
+
+class EstrategiaApiDesastresNaturales implements ServicioDeImportacion {
+    - apiKey:String
+    --
+}
+
+' RELACIONES '
+Fuente ..> Hecho
+
+Hecho --> Origen
+Hecho --> Ubicacion
+Ubicacion --> Coordenadas
+Hecho --> Contribuyente
+Hecho --> ContenidoMultimedia
+Hecho --> Archivo
+Hecho --> Categoria
+Hecho --> Etiqueta
+ContenidoMultimedia --> TipoDeContenido
+
+FuenteProxy ..|> Fuente
+FuenteProxy --> ServicioDeImportacion
+
+
+
+@enduml

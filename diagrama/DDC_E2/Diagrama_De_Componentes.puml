@@ -1,0 +1,113 @@
+@startuml
+
+skinparam database {
+    backgroundColor greenyellow
+}
+
+skinparam cloud {
+    backgroundcolor skyblue
+}
+
+
+' SISTEMA METAMAPA '
+frame "metamapa" {
+
+    ' NODOS Y COMPONENTES '
+    node "Servicio Agregador" {
+        component "Servicio Agregador App" {
+            folder "agregacion"
+            folder "fuentes"
+            folder "solicitudes"
+        }
+        component "🕒 Tiempo"
+    }
+
+    database "colecciones\nhechos\nsolicitudes\ncategorias\netiquetas" as DbAgregador
+
+
+    node "Fuente Estatica" {
+        component "Fuente Estatica App" {
+            folder "fuente estatica"
+            folder "archivos"
+        }
+    }
+
+    database "hechos\narchivos" as DbEstatica
+
+
+
+    node "Fuente Dinamica" {
+        component "Fuente Dinamica App" {
+            folder "fuente dinamica"
+            folder "solicitudes" as solicitudesDinamica
+        }
+    }
+
+    database "hechos\nsolicitudes" as DbDinamica
+
+
+    node "Fuente Proxy" {
+        component "Fuente Proxy App" {
+            folder "fuente proxy"
+            folder "servicios externos"
+        }
+    }
+
+
+    ' ACTORES '
+    actor "contribuyente" as contrAgregador
+    actor "contribuyente" as contrDinamica
+    actor "visualizador" as visAgregador
+    actor "visualizador" as visDinamica
+    actor "administrador" as adminAgregador
+    actor "administrador" as adminDinamica
+    actor "administrador" as adminEstatica
+}
+
+cloud "API Desastres" as cloudDesastres
+cloud "fuente Metamapa" as cloudMetamapa
+
+' RELACIONES SERVICIO AGREGADOR '
+[agregacion] --> [fuentes]
+[agregacion] --> [solicitudes]
+[solicitudes] -l-> [fuentes]
+[fuentes] -(0- [Fuente Estatica App] : HTTP
+[fuentes] -(0- [Fuente Dinamica App] : HTTP
+[fuentes] -(0- [Fuente Proxy App] : HTTP
+
+[🕒 Tiempo] --> [Servicio Agregador App]
+[Servicio Agregador App] --> "TCP" [DbAgregador]
+
+[contrAgregador] --> [Servicio Agregador App]
+[visAgregador] --> [Servicio Agregador App]
+[adminAgregador] --> [Servicio Agregador App]
+
+
+
+' RELACIONES FUENTE ESTATICA '
+[fuente estatica] --> [archivos]
+
+[Fuente Estatica App] --> "TCP" [DbEstatica]
+
+[adminEstatica] -u-> [Fuente Estatica App]
+
+
+
+' RELACIONES FUENDE DINAMICA '
+[fuente dinamica] --> [solicitudesDinamica]
+
+[Fuente Dinamica App] --> "TCP" [DbDinamica]
+
+[contrDinamica] -u-> [Fuente Dinamica App]
+[visDinamica] -u-> [Fuente Dinamica App]
+[adminDinamica] -u-> [Fuente Dinamica App]
+
+
+
+' RELACIONES FUENTE PROXY '
+[fuente proxy] --> [servicios externos]
+
+[Fuente Proxy App] --> [cloudDesastres]
+[Fuente Proxy App] --> [cloudMetamapa]
+
+@enduml

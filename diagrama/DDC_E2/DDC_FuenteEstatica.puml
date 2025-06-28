@@ -1,0 +1,93 @@
+@startuml
+
+interface Fuente {
+    + importarHechos():List<Hecho>
+}
+
+interface EstrategiaImportacionEstatica{
+    + leerArchivo(rutaFuente:String):List<Hecho>
+}
+
+class FuenteEstatica {
+    - estrategiaImportacion:EstrategiaImportacionEstatica
+    - rutaFuente:String
+    --
+    + importarHechos():List<Hecho>
+}
+
+class EstrategiaCSV{
+    - archivoCSV:Archivo
+    + leerArchivo(rutaFuente:String):List<Hecho>
+}
+
+class Archivo{
+    - nombre:String
+    - tamanioEnBytes:Integer
+}
+
+class Hecho {
+    - id:String
+    - titulo:String
+    - descripcion:String
+    - categoria:List<Categoria>
+    - ubicacion:Ubicacion
+    - fechaAcontecimiento:LocalDate
+    - fechaDeCarga:LocalDate
+    - origen:Origen
+    - estaEliminado:Boolean
+    - etiquetas:List<Etiqueta>
+    - archivoDeOrigen:Archivo
+    --
+    + contieneTexto(texto:String):Boolean
+    + agregarCategoria(categoria:String):void
+    + agregarEtiqueta(etiqueta:String):void
+}
+
+class Ubicacion {
+    - coordenadas:Coordenadas
+    - provincia:String
+    - localidad:String
+    - calle:String
+    - altura:Integer
+    --
+    + esIgualA(otraUbicacion:Ubicacion):Boolean
+}
+
+class Coordenadas {
+    - latitud:Double
+    - longitud:Double
+    --
+    + estaCercaDe((otrasCoordenadas:Coordenadas, kmALaRedonda:Double):Boolean
+    - formulaHavershine(otrasCoordenadas:Coordenadas):Double
+}
+
+class Categoria {
+    - nombre:String
+}
+
+class Etiqueta {
+    - titulo:String
+}
+
+enum Origen {
+    MANUAL
+    DATASET
+    CONTRIBUYENTE
+}
+
+Fuente ..> Hecho
+
+FuenteEstatica ..|> Fuente
+FuenteEstatica --> EstrategiaImportacionEstatica
+EstrategiaCSV ..> Hecho
+EstrategiaCSV ..|> EstrategiaImportacionEstatica
+EstrategiaCSV --> Archivo
+
+Hecho --> Origen
+Hecho --> Ubicacion
+Ubicacion --> Coordenadas
+Hecho --> Archivo
+Hecho --> Categoria
+Hecho --> Etiqueta
+
+@enduml

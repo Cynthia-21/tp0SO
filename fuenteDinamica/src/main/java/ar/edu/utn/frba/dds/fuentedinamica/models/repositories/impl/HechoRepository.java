@@ -18,7 +18,11 @@ public class HechoRepository implements IHechoRepository {
 
   @Override
   public Hecho save(Hecho hecho) {
-    hecho.setId((long) this.hechos.size());
+    if (hecho.getId() == null) {
+      hecho.setId((long) this.hechos.size());
+    } else {
+      this.hechos.remove(this.findById(hecho.getId()));
+    }
     this.hechos.add(hecho);
 
     return hecho;

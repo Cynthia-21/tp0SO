@@ -32,13 +32,13 @@ public class SolicitudDeModificacion {
   }
 
   public void aceptarRevision(LocalDateTime fechaDeRevision, Administrador administrador) {
-    this.historialModificados.add(this.hechoARevisar);
+    this.historialModificados.add(this.clonarHecho(this.hechoARevisar));
     this.hechoARevisar = this.hechoModificado;
     this.estadosRevision.add(new EstadoRevision(PosibleEstado.CONFIRMADA, administrador, fechaDeRevision));
   }
 
   public void aceptarConSugerencia(LocalDateTime fechaDeRevision, Administrador administrador, String comentario) {
-    this.historialModificados.add(this.hechoARevisar);
+    this.historialModificados.add(this.clonarHecho(this.hechoARevisar));
     this.hechoARevisar = this.hechoModificado;
     this.estadosRevision.add(new EstadoRevision(PosibleEstado.CONFIRMADA_SUGERENCIA, administrador, fechaDeRevision));
   }
@@ -60,5 +60,12 @@ public class SolicitudDeModificacion {
 
   public EstadoRevision getUltimoEstadoRevision() {
     return this.estadosRevision.get(this.estadosRevision.size() - 1);
+  }
+
+  private Hecho clonarHecho(Hecho hecho) {
+    Hecho copia = new Hecho();
+    copia.setId(hecho.getId());
+    // TODO setear lo demas
+    return copia;
   }
 }

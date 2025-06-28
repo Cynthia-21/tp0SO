@@ -1,0 +1,148 @@
+@startuml
+
+interface Fuente {
+    + importarHechos():List<Hecho>
+}
+
+class FuenteDinamica {
+    --
+    + importarHechos():List<Hecho>
+    + agregarHecho(hecho:Hecho):void
+}
+
+' CLASES, INTERFACES Y ENUMS '
+
+class Hecho {
+    - id:String
+    - titulo:String
+    - descripcion:String
+    - categorias:List<Categoria>
+    - contenidoMultimedia:List<ContenidoMultimedia>
+    - ubicacion:Ubicacion
+    - fechaAcontecimiento:LocalDate
+    - fechaDeCarga:LocalDate
+    - origen:Origen
+    - estaEliminado:Boolean
+    - etiquetas:List<Etiqueta>
+    - contribuyente:Contribuyente
+    - fechaCreacion:LocalDate
+    --
+    + contieneTexto(texto:String):Boolean
+    + agregarCategoria(categoria:String):void
+    + agregarEtiqueta(etiqueta:String):void
+    + puedeSerEditado():Boolean
+}
+
+class Ubicacion {
+    - coordenadas:Coordenadas
+    - provincia:String
+    - localidad:String
+    - calle:String
+    - altura:Integer
+    --
+    + esIgualA(otraUbicacion:Ubicacion):Boolean
+}
+
+class Coordenadas {
+    - latitud:Double
+    - longitud:Double
+    --
+    + estaCercaDe((otrasCoordenadas:Coordenadas, kmALaRedonda:Double):Boolean
+    - formulaHavershine(otrasCoordenadas:Coordenadas):Double
+}
+
+class Categoria {
+    - nombre:String
+}
+
+class Etiqueta {
+    - titulo:String
+}
+
+enum Origen {
+    MANUAL
+    DATASET
+    CONTRIBUYENTE
+}
+
+class ContenidoMultimedia {
+    - path:String
+    - descripcion:String
+    - tipoDeContenido:TipoDeContenido
+}
+
+enum TipoDeContenido {
+    FOTO
+    VIDEO
+    AUDIO
+    TEXTO
+}
+
+class Contribuyente {
+    - nombre:String
+    - apellido:String
+    - fechaDeNacimiento:LocalDate
+    - estaRegistrado:Boolean
+    --
+    + edad:Integer
+}
+
+class Administrador {
+    - nombre:String
+    - apellido:String
+}
+
+class SolicitudDeModificacion {
+    - solicitante:Contribuyente
+    - hechoARevisar:Hecho
+    - hechoModificado:Hecho
+    - estadoRevision : List<EstadoRevision>
+    - historialModificados : List<Hecho>
+    - fechaDeAlta : LocalDateTime
+    + aceptarRevision(fechaDeRevision:LocalDateTime, administrador:Administrador):void
+    + rechazarRevision(fechaDeRevision:LocalDateTime, administrador:Administrador):void
+    + aceptarConSugerencia(fechaDeRevision:LocalDateTime, administrador:Administrador,comentario:String):void
+}
+
+class EstadoRevision {
+    - quienRevisio : Administrador
+    - fechaDeRevision : LocalDateTime
+    - estadoRevision: PosibleEstado
+    - comentarioSugerencia : String
+}
+
+enum PosibleEstado {
+    PENDIENTE
+    CONFIRMADA
+    CONFIRMADA_SUGERENCIA
+    RECHAZADA
+}
+
+
+' RELACIONES '
+
+Fuente ..> Hecho
+
+FuenteDinamica ..> Hecho
+
+Hecho --> Origen
+Hecho --> Ubicacion
+Ubicacion --> Coordenadas
+Hecho --> Contribuyente
+Hecho --> ContenidoMultimedia
+Hecho --> Categoria
+Hecho --> Etiqueta
+ContenidoMultimedia --> TipoDeContenido
+
+FuenteDinamica ..|> Fuente
+
+SolicitudDeModificacion --> EstadoRevision
+SolicitudDeModificacion --> Contribuyente
+SolicitudDeModificacion --> Hecho
+EstadoRevision-->Administrador
+EstadoRevision--> PosibleEstado
+
+
+
+
+@enduml

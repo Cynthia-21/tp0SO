@@ -8,6 +8,7 @@ import ar.edu.utn.frba.dds.fuentedinamica.models.domain.solicitudes.PosibleEstad
 import ar.edu.utn.frba.dds.fuentedinamica.models.domain.solicitudes.SolicitudDeModificacion;
 import ar.edu.utn.frba.dds.fuentedinamica.models.dtos.output.HechoOutputDTO;
 import ar.edu.utn.frba.dds.fuentedinamica.models.dtos.output.SolicitudDeModificacionOutputDTO;
+import ar.edu.utn.frba.dds.fuentedinamica.models.repositories.impl.HechoRepository;
 import ar.edu.utn.frba.dds.fuentedinamica.models.repositories.impl.SolicitudDeModificacionRepository;
 import ar.edu.utn.frba.dds.fuentedinamica.services.ISolicitudDeModificacionService;
 import org.springframework.stereotype.Service;
@@ -20,9 +21,11 @@ import java.util.stream.Collectors;
 public class SolicitudDeModificacionService implements ISolicitudDeModificacionService {
 
   private final SolicitudDeModificacionRepository solicitudRepository;
+  private final HechoRepository hechoRepository;
 
-  public SolicitudDeModificacionService(SolicitudDeModificacionRepository solicitudRepository) {
+  public SolicitudDeModificacionService(SolicitudDeModificacionRepository solicitudRepository, HechoRepository hechoRepository) {
     this.solicitudRepository = solicitudRepository;
+    this.hechoRepository = hechoRepository;
   }
 
   @Override
@@ -66,6 +69,7 @@ public class SolicitudDeModificacionService implements ISolicitudDeModificacionS
     }
     solicitud.aceptarRevision(LocalDateTime.now(), administrador);
     solicitudRepository.save(solicitud);
+    hechoRepository.save(solicitud.getHechoModificado());
   }
 
   @Override
@@ -76,6 +80,7 @@ public class SolicitudDeModificacionService implements ISolicitudDeModificacionS
     }
     solicitud.aceptarConSugerencia(LocalDateTime.now(), administrador, comentario);
     solicitudRepository.save(solicitud);
+    hechoRepository.save(solicitud.getHechoModificado());
   }
 
   @Override

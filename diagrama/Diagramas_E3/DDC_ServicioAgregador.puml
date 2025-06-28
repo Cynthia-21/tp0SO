@@ -1,0 +1,290 @@
+@startuml
+' CLASES, INTERFACES Y ENUMS '
+
+interface AlgoritmoDeConsenso {
+    + consensuarHechos(hechos:List<Hecho>):List<Hechos>
+}
+
+class MultiplesMenciones implements AlgoritmoDeConsenso {
+
+}
+
+class MayoriaSimple implements AlgoritmoDeConsenso {
+
+}
+
+class Absoluta implements AlgoritmoDeConsenso {
+
+}
+
+class Coleccion {
+    - id:String
+    - titulo:String
+    - descripcion:String
+    - criterios:CriterioDePertenencia
+    - fuente:List<Fuente>
+    - hechos:List<Hecho>
+    - algoritmoDeConsenso:AlgoritmoDeConsenso
+    - hechosConsensuados:List<Hecho>
+    --
+    + filtrarPor(filtro:Filtro):List<Hecho>
+    + agregarHecho(hecho:Hecho):void
+    + agregarFuente(fuente:Fuente):void
+    + revalidarPorCriterio():void
+    + consensuarHechos():void
+    - limpiarHechos():void
+}
+
+interface ICriterioDePertenencia {
+    --
+    + cumpleCriterio(hecho:Hecho):Boolean
+}
+
+class CriterioCategoria {
+    - categoria:Categoria
+    --
+    + cumpleCriterio(hecho:Hecho):Boolean
+}
+
+class CriterioFecha {
+    - fechaInicial:LocalDate
+    - fechaFinal:LocalDate
+    --
+    + cumpleCriterio(hecho:Hecho):Boolean
+}
+
+class CriterioUbicacion {
+    - ubicacion:Ubicacion
+    --
+    + cumpleCriterio(hecho:Hecho):Boolean
+}
+
+class CriterioDePertenencia {
+    - criterios:List<ICriterioDePertenencia>
+    - fueModificado:Boolean
+    --
+    + agregarCriterio(criterio:ICriterioDePertenencia):void
+    + removerCriterio(criterio:ICriterioDePertenencia):void
+    + cumpleCriterios(hecho:Hecho):Boolean
+}
+
+class Hecho {
+    - id:Long
+    - titulo:String
+    - descripcion:String
+    - categoria:List<Categoria>
+    - contenidoMultimedia:List<ContenidoMultimedia>
+    - ubicacion:Ubicacion
+    - fechaAcontecimiento:LocalDateTime
+    - fechaDeCarga:LocalDateTime
+    - origen:Origen
+    - estaEliminado:Boolean
+    - etiquetas:List<Etiqueta>
+    - contribuyente:Contribuyente
+    - archivoDeOrigen:Archivo
+    - nombreProxy:Proxy
+    --
+    + contieneTexto(texto:String):Boolean
+    + agregarCategoria(categoria:String):void
+    + agregarEtiqueta(etiqueta:String):void
+}
+
+class Ubicacion {
+    - coordenadas:Coordenadas
+    - provincia:String
+    - localidad:String
+    - calle:String
+    - altura:Integer
+    --
+    + esIgualA(otraUbicacion:Ubicacion):Boolean
+}
+
+class Coordenadas {
+    - latitud:Double
+    - longitud:Double
+    --
+    + estaCercaDe((otrasCoordenadas:Coordenadas, kmALaRedonda:Double):Boolean
+    - formulaHavershine(otrasCoordenadas:Coordenadas):Double
+}
+
+class Categoria {
+    - id:Long
+    - nombre:String
+}
+
+class Etiqueta {
+    - id:Long
+    - titulo:String
+}
+
+enum Origen {
+    MANUAL
+    DATASET
+    CONTRIBUYENTE
+}
+
+class ContenidoMultimedia {
+    - path:String
+    - descripcion:String
+    - tipoDeContenido:TipoDeContenido
+}
+
+enum TipoDeContenido {
+    FOTO
+    VIDEO
+    AUDIO
+    TEXTO
+}
+
+
+class Filtro {
+    - titlo:String
+    - descripcion:String
+    - categorias:List<Categoria>
+    - ubicacion:Ubicacion
+    - fechaAcontecimiento:LocalDate
+    - fechaDeCarga:LocalDate
+    - origen:Origen
+    - etiquetas:List<Etiqueta>
+    --
+    + cumpleFiltro(hecho:Hecho):Boolean
+    + agregarCategoria(categoria:Categoria):void
+    + agregarEtiqueta(etiqueta:Etiqueta):void
+}
+
+class Filtrador {
+    --
+    + filtrar(coleccion:Coleccion, filtro:Filtro):List<Hecho>
+}
+
+interface Fuente {
+    --
+    + importarHechos():List<Hecho>
+    + importarHechosRecientes():List<Hecho>
+}
+
+class FuenteEstatica implements Fuente {
+    - tipo:String
+    - archivo:Archivo
+    - baseUrl:String
+    - webClient:WebClient
+    --
+    + importarHechos():List<Hecho>
+    + importarHechosRecientes():List<Hecho>
+}
+
+class FuenteDinamica implements Fuente {
+    - tipo:String
+    - baseUrl:String
+    - webClient:WebClient
+    --
+    + importarHechos():List<Hecho>
+    + importarHechosRecientes():List<Hecho>
+}
+
+class FuenteProxy implements Fuente {
+    - tipo:String
+    - proxy:String
+    - baseUrl:String
+    - webClient:WebClient
+    --
+    + importarHechos():List<Hecho>
+    + importarHechosRecientes():List<Hecho>
+}
+
+class Archivo{
+    - nombre:String
+    - tamanioEnBytes:Integer
+}
+
+class Contribuyente {
+    - nombre:String
+    - apellido:String
+    - fechaDeNacimiento:LocalDate
+    --
+    + edad:Integer
+}
+
+class Proxy {
+    - nombre:String
+}
+
+class Administrador {
+    - nombre:String
+    - apellido:String
+}
+
+class SolicitudDeEliminacion {
+    - id:Long
+    - solicitante:Contribuyente
+    - hechoAEliminar:Hecho
+    - motivoSolicitud:MotivoSolicitud
+    - fechaAlta:LocalDateTime
+    - estadosDeSolicitud:List<EstadoSolicitud>
+    --
+    + aceptarSolicitud(fechaDeRevision:LocalDateTime, administrador:Administrador):void
+    + rechazarSolicitud(fechaDeRevision:LocalDateTime, administrador:Administrador):void
+    + rechazarPorSpam(fechaDeRevision:LocalDateTime):void
+    + getEstadoSolicitudActual():PosibleEstado
+    + getFechaUltimaRevision():LocalDateTime
+    + getUltimoEstadoSolicitud():EstadoSolicitud
+}
+
+class EstadoSolicitud {
+    - posibleEstado:PosibleEstado
+    - administrador:Administrador
+    - fechaDeRevision:LocalDateTime
+}
+
+enum PosibleEstado {
+    PENDIENTE
+    CONFIRMADA
+    RECHAZADA
+}
+
+class MotivoSolicitud {
+    - descripcion:String
+    --
+    - checkearLargoMotivo(motivo):void
+}
+
+' RELACIONES '
+
+Coleccion --> "*" Fuente
+Coleccion --> "*" Hecho
+Coleccion --> CriterioDePertenencia
+Coleccion --> AlgoritmoDeConsenso
+
+Filtrador ..> Filtro
+Filtrador ..> Coleccion
+
+Filtro ..> Hecho
+
+Fuente ..> Hecho
+
+FuenteEstatica --> Archivo
+
+Hecho --> Origen
+Hecho --> Ubicacion
+Ubicacion --> Coordenadas
+Hecho --> Contribuyente
+Hecho --> ContenidoMultimedia
+Hecho --> Archivo
+Hecho --> Categoria
+Hecho --> Etiqueta
+ContenidoMultimedia --> TipoDeContenido
+
+CriterioDePertenencia ..> Hecho
+CriterioDePertenencia --> "*" ICriterioDePertenencia
+CriterioCategoria ..|> ICriterioDePertenencia
+CriterioFecha ..|> ICriterioDePertenencia
+CriterioUbicacion ..|> ICriterioDePertenencia
+
+SolicitudDeEliminacion --> "*" EstadoSolicitud
+EstadoSolicitud --> PosibleEstado
+EstadoSolicitud --> Administrador
+SolicitudDeEliminacion --> Contribuyente
+SolicitudDeEliminacion --> Hecho
+SolicitudDeEliminacion --> MotivoSolicitud
+
+@enduml
